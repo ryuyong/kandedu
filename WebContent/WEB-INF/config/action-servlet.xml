@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd
+                        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+    <!-- context:annotation-config 하나 넣어주면 @Required,@Autowired,@Resource,@Postconstruct,@Predestroy,@Configuration 6종 사용가능 -->
+    <context:annotation-config />
+    <context:component-scan base-package="kr.co.kandedu.*" />
+    <!-- 뷰 경로 셋팅 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+      <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+      <property name="order"     value="0" />
+    </bean>
+    
+    <bean id="springViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+      <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+      <property name="order"     value="1" />
+      <property name="cache"     value="true" />
+      <property name="prefix"    value="/WEB-INF/view" />
+      <property name="suffix"    value=".jsp" /> 
+    </bean>
+    <!-- 
+    <bean id="tiles2ViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+      <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+      <property name="order"     value="0" />
+    </bean>
+     --> 
+
+    <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+      <property name="definitions">
+        <list>
+          <value>/WEB-INF/config/tiles-defs.xml</value>
+        </list>
+      </property>
+      <property name="preparerFactoryClass" value="org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory" />
+    </bean>
+    
+    <bean id="annotationHandlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"  >
+      <property name="order" value="3" />
+      <property name="interceptors">
+        <list>
+          <ref bean="logInterceptor" />
+          <ref bean="sessionInterceptor" />
+        </list>
+      </property>
+    </bean>
+    <bean id="sessionInterceptor" class="kr.co.kandedu.base.env.SessionHandler" />
+    <bean id="logInterceptor" class="kr.co.kandedu.base.env.LogHandler" />
+    <bean id="localeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+    
+    <!-- 예외 핸들러 -->
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+      <property name="exceptionMappings">
+        <props>
+          <prop key="org.springframework.web.HttpSessionRequiredException">/error/DefaultError</prop>
+          <prop key="org.springframework.dao.DataAccessException">/error/DefaultError</prop>
+          <prop key="java.lang.NullPointerException">/error/DefaultError</prop>
+          <prop key="java.lang.ClassNotFoundException">/error/DefaultError</prop>
+          <prop key="java.lang.Exception">/error/DefaultError</prop>
+        </props>
+      </property>
+      <property name="exceptionAttribute" value="exception"></property>
+      <property name="defaultErrorView" value="/error/DefaultError"></property>
+    </bean>
+        
+</beans>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+    	<typeAlias alias="HakwonVo" type="kr.co.kandedu.base.domain.HakwonVo"/>
+    	<typeAlias alias="StudentVo" type="kr.co.kandedu.base.domain.StudentVo"/>
+    	<typeAlias alias="AnswerVo" type="kr.co.kandedu.base.domain.AnswerVo"/>
+    	<typeAlias alias="AdminVo" type="kr.co.kandedu.base.domain.AdminVo"/>
+    	<typeAlias alias="FileVo" type="kr.co.kandedu.base.domain.FileVo"/>
+    	<typeAlias alias="KwamokVo" type="kr.co.kandedu.base.domain.KwamokVo"/>
+    	<typeAlias alias="StudentKwamokVo" type="kr.co.kandedu.base.domain.StudentKwamokVo"/>
+    	<typeAlias alias="TeacherVo" type="kr.co.kandedu.base.domain.TeacherVo"/>
+    	<typeAlias alias="TeacherHakwonVo" type="kr.co.kandedu.base.domain.TeacherHakwonVo"/>
+    </typeAliases>
+    <mappers>
+    <mapper resource="kr/co/kandedu/base/mapper/AdminStud.xml" />
+    <mapper resource="kr/co/kandedu/base/mapper/StudStud.xml" />
+    <mapper resource="kr/co/kandedu/base/mapper/Common.xml" />
+    <mapper resource="kr/co/kandedu/base/mapper/TeacherStud.xml" />
+    </mappers>
+</configuration>

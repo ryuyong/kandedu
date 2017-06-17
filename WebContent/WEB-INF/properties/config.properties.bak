@@ -1,0 +1,10 @@
+upload.max.file.size    = 10485760000000
+upload.web.home.dir  = /upload/
+upload.sys.temp.dir  = C:/upload/student/temp/
+upload.sys.home.dir  = C:/upload/student/
+pdf.sys.home.dir = C:/pdf/question/
+pdf.answer.home.dir = C:/pdf/answer/
+pdf.save.home.dir = C:/pdf/save/question/
+pdf.save.temp.dir = C:/pdf/save/temp/
+pdf.clinic.home.dir = C:/pdf/clinic/
+pdf.clinicsave.home.dir = C:/pdf/save/clinic/

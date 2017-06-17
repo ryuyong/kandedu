@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kandedu.stud.ebc.StudStudDAO">
+	<select id="getStudent" parameterType="StudentVo" resultType="StudentVo">
+		SELECT stud_cd, stud_id, stud_nm, hakwon_cd , hakneon
+		FROM student 
+		where hakwon_cd = #{hakwon_cd}
+		and stud_id = #{stud_id}
+		and stud_nm = #{stud_nm}
+		and hakneon = #{hakneon}
+		and use_yn = 'Y'
+    </select>
+    
+    <insert id="insertAnswer" parameterType="AnswerVo">
+		INSERT INTO ANSWER 
+		(
+			STUD_CD,kwamok_cd, WEEKVALUE,DAYVALUE,
+			QUESTIONVALUE,STUDANSWER,RIGHTYN, reg_date, reg_cd, upd_date, upd_cd
+		) VALUES 
+		(
+			#{stud_cd},#{kwamok_cd}, #{weekvalue},#{dayvalue},
+			#{questionvalue},#{studanswer},#{rightyn}
+			, now(), #{reg_cd}, now(), #{upd_cd}
+		)
+	</insert>
+	
+	
+	<select id="getStudAnswer" parameterType="AnswerVo" resultType="AnswerVo">
+		SELECT stud_cd, kwamok_cd, weekvalue, dayvalue, questionvalue,studanswer, rightyn 
+		FROM answer 
+		where stud_cd = #{stud_cd}
+		and kwamok_cd = #{kwamok_cd}
+		and weekvalue = #{weekval}
+		and dayvalue = #{dayvalue}
+    </select>
+</mapper>

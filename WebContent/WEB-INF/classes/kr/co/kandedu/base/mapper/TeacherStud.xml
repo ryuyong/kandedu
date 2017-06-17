@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kandedu.teacher.ebc.TeacherStudDAO">
+	<select id="getStudAnswerStats" parameterType="AnswerVo" resultType="AnswerVo">
+	select inter.* from (
+		select @RNUM := @RNUM + 1 AS RNUM, a.hakwon_nm, 
+		a.kwamok_nm, a.weekvalue, a.dayvalue, a.questionvalue, sum(rightcnt) as rightcnt,
+		 sum(wrongcnt) as wrongcnt,
+		sum(allcnt) as allcnt,
+		round(sum(rightcnt)/sum(allcnt)*100,1) as rightpercent
+		from (
+		select d.hakwon_nm, a.weekvalue, a.dayvalue, a.questionvalue, c.kwamok_nm,
+			case when 
+			a.rightyn = 'Y' then 1
+			else 0 end as rightcnt ,
+			case when 
+			a.rightyn = 'N' then 1
+			else 0 end as wrongcnt,
+			1 as allcnt
+		from answer a, student b, kwamok c, hakwon d
+		where b.hakwon_cd = d.hakwon_cd
+		and a.stud_cd = b.stud_cd 
+		and a.kwamok_cd = c.kwamok_cd
+		and b.use_yn = 'Y'
+		and d.use_yn = 'Y'
+		and c.use_yn = 'Y'
+		<if test="hakwon_cd != null and hakwon_cd != ''">
+			and b.hakwon_cd = #{hakwon_cd}
+		</if>
+		<if test="kwamok_cd != null and kwamok_cd != ''">
+			and a.kwamok_cd = #{kwamok_cd}
+		</if>
+		<if test="weekval != null and weekval != ''">
+			and a.weekvalue = #{weekval}
+		</if>
+		<if test="dayvalue != null and dayvalue != ''">
+			and a.dayvalue = #{dayvalue}
+		</if>
+		<if test="hakneon != null and hakneon != ''">
+			and b.hakneon = #{hakneon}
+		</if>
+		) a,(SELECT @RNUM := 0) b
+		group by a.hakwon_nm, a.kwamok_nm, a.weekvalue, a.dayvalue, a.questionvalue
+		order by a.hakwon_nm, a.kwamok_nm, a.weekvalue, a.dayvalue, a.questionvalue
+		) inter where rnum > #{firstIndex}
+		and rnum <![CDATA[ <= ]]> #{lastIndex}
+    </select>
+    
+	<select id="getStudAnswerStatsCnt" parameterType="AnswerVo" resultType="int">
+	    select count(*) as cnt from (
+			select a.hakwon_nm, a.kwamok_nm, a.weekvalue, a.dayvalue, a.questionvalue
+			from (
+			select d.hakwon_nm, a.weekvalue, a.dayvalue, a.questionvalue, c.kwamok_nm,
+				case when 
+				a.rightyn = 'Y' then 1
+				else 0 end as rightcnt ,
+				case when 
+				a.rightyn = 'N' then 1
+				else 0 end as wrongcnt,
+				1 as allcnt
+			from answer a, student b, kwamok c, hakwon d
+			where b.hakwon_cd = d.hakwon_cd
+			and a.stud_cd = b.stud_cd 
+			and a.kwamok_cd = c.kwamok_cd
+			and b.use_yn = 'Y'
+			and d.use_yn = 'Y'
+			and c.use_yn = 'Y'
+			<if test="hakwon_cd != null and hakwon_cd != ''">
+				and b.hakwon_cd = #{hakwon_cd}
+			</if>
+			<if test="kwamok_cd != null and kwamok_cd != ''">
+				and a.kwamok_cd = #{kwamok_cd}
+			</if>
+			<if test="weekval != null and weekval != ''">
+				and a.weekvalue = #{weekval}
+			</if>
+			<if test="dayvalue != null and dayvalue != ''">
+				and a.dayvalue = #{dayvalue}
+			</if>
+			<if test="hakneon != null and hakneon != ''">
+				and b.hakneon = #{hakneon}
+			</if>
+			) a
+			group by a.hakwon_nm, a.kwamok_nm, a.weekvalue, a.dayvalue, a.questionvalue
+		) b
+    </select>
+    
+    <select id="getStudAnswerSubmitStats" parameterType="AnswerVo" resultType="AnswerVo">
+		SELECT inter.* from (
+        SELECT @RNUM := @RNUM + 1 AS RNUM,
+        	A.hakwon_nm, A.HAKWON_CD, A.HAKNEON, A.STUD_CD, A.STUD_ID,A.STUD_NM,A.kwamok_nm, a.kwamok_cd, A.kwamok_folder_cd, A.WEEKVALUE,A.DAYVALUE,
+			       B.WEEKVALUE AS SUBMITCNT FROM 
+				(SELECT A.hakwon_nm, A.HAKWON_CD, A.STUD_CD,A.STUD_ID, A.STUD_NM, A.HAKNEON, b.kwamok_cd, b.kwamok_folder_cd, b.kwamok_nm, B.WEEKVALUE, B.DAYVALUE FROM 
+			    (SELECT st.*, ha.hakwon_nm FROM STUDENT st , hakwon ha WHERE st.HAKWON_CD = ha.hakwon_cd and st.use_yn = 'Y' and ha.use_yn = 'Y') A, 
+			    (SELECT kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, an.WEEKVALUE,an.DAYVALUE FROM ANSWER an , kwamok kw 
+			    where an.kwamok_cd = kw.kwamok_cd
+			    and kw.use_yn = 'Y'
+				GROUP BY kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, WEEKVALUE, DAYVALUE) B) A 
+				LEFT OUTER JOIN 
+				(SELECT STUD_CD, kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, WEEKVALUE, DAYVALUE FROM ANSWER an, kwamok kw where an.kwamok_cd = kw.kwamok_cd
+				GROUP BY STUD_CD, kw.kwamok_nm, kw.kwamok_cd, WEEKVALUE, DAYVALUE) B
+				ON A.STUD_CD = B.STUD_CD
+				and a.kwamok_cd = b.kwamok_cd
+				AND A.WEEKVALUE = B.WEEKVALUE
+				AND A.DAYVALUE = B.DAYVALUE
+				INNER JOIN (SELECT @RNUM := 0) C
+			WHERE 1=1
+			<if test="hakwon_cd != null and hakwon_cd != ''">
+			and A.HAKWON_CD = #{hakwon_cd}
+			</if>
+			<if test="kwamok_cd != null and kwamok_cd != ''">
+			and A.kwamok_cd = #{kwamok_cd}
+			</if>
+			<if test="weekvalue != null and weekvalue != ''">
+			and A.weekvalue = #{weekvalue}
+			</if>
+			<if test="dayvalue != null and dayvalue != ''">
+			and A.dayvalue = #{dayvalue}
+			</if>
+			<if test="hakneon != null and hakneon != ''">
+			and A.hakneon = #{hakneon}
+			</if>
+			ORDER BY A.hakwon_cd, A.kwamok_folder_cd, A.HAKNEON, A.WEEKVALUE,A.DAYVALUE, A.STUD_NM
+			) inter where rnum > #{firstIndex}
+		and rnum <![CDATA[ <= ]]> #{lastIndex}
+    </select>
+    
+	<select id="getStudAnswerSubmitStatsCnt" parameterType="AnswerVo" resultType="int">
+			SELECT COUNT(*) AS cnt
+			FROM 
+			(
+			  SELECT A.hakwon_nm, A.HAKWON_CD,A.STUD_CD,A.STUD_ID, A.STUD_NM, A.HAKNEON, b.kwamok_cd, b.kwamok_folder_cd, b.kwamok_nm, B.WEEKVALUE, B.DAYVALUE
+			    FROM 
+			    (SELECT st.*, ha.hakwon_nm FROM STUDENT st , hakwon ha WHERE st.HAKWON_CD = ha.hakwon_cd and st.use_yn = 'Y' and ha.use_yn = 'Y') A, 
+				 (SELECT kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, an.WEEKVALUE,an.DAYVALUE
+			        FROM ANSWER an, kwamok kw
+			        WHERE an.kwamok_cd = kw.kwamok_cd
+			        and kw.use_yn = 'Y'
+			        GROUP BY kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, WEEKVALUE,DAYVALUE) B) A
+			     LEFT OUTER JOIN 
+				  (
+					SELECT STUD_CD, kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, WEEKVALUE, DAYVALUE
+					FROM ANSWER an, kwamok kw
+					WHERE an.kwamok_cd = kw.kwamok_cd
+					GROUP BY STUD_CD, kw.kwamok_nm, kw.kwamok_cd, kw.kwamok_folder_cd, WEEKVALUE, DAYVALUE) B 
+				ON A.STUD_CD = B.STUD_CD 
+				AND a.kwamok_cd = b.kwamok_cd 
+				AND A.WEEKVALUE = B.WEEKVALUE 
+				AND A.DAYVALUE = B.DAYVALUE
+			WHERE 1=1
+			<if test="hakwon_cd != null and hakwon_cd != ''">
+			and A.HAKWON_CD = #{hakwon_cd}
+			</if>
+			<if test="kwamok_cd != null and kwamok_cd != ''">
+			and A.kwamok_cd = #{kwamok_cd}
+			</if>
+			<if test="weekvalue != null and weekvalue != ''">
+			and A.weekvalue = #{weekvalue}
+			</if>
+			<if test="dayvalue != null and dayvalue != ''">
+			and A.dayvalue = #{dayvalue}
+			</if>
+			<if test="hakneon != null and hakneon != ''">
+			and A.hakneon = #{hakneon}
+			</if>
+    </select>
+    
+    <delete id="deleteanswer" parameterType="AnswerVo">
+		delete from answer 
+		where stud_cd =#{stud_cd} 
+		and kwamok_cd = #{kwamok_cd}
+		and weekvalue = #{weekvalue}
+		and dayvalue = #{dayvalue}
+	</delete>
+	
+	<select id="getTeacher" parameterType="TeacherVo" resultType="TeacherVo">
+		SELECT teacher_cd, teacher_id, teacher_pass, teacher_nm ,
+		tel_no, ptel_no
+		FROM teacher 
+		where teacher_id = #{teacher_id}
+		and teacher_pass = #{teacher_pass}
+		and use_yn = 'Y'
+    </select>
+</mapper>

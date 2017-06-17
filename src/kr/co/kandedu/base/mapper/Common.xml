@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kandedu.common.ebc.CommonDAO">
+	<select id="getHakwonList" parameterType="HakwonVo" resultType="HakwonVo">
+		SELECT * FROM hakwon where use_yn = 'Y' order by hakwon_nm
+		
+    </select>
+	<select id="getHakwonStudList" parameterType="StudentVo" resultType="StudentVo">
+		SELECT * FROM student where hakwon_cd = #{hakwon_cd} 
+		and use_yn = 'Y' order by stud_nm
+    </select>
+	<select id="getHakwonNm" parameterType="String" resultType="String">
+		SELECT hakwon_nm FROM hakwon where hakwon_cd = #{hakwon_cd}
+    </select>
+	<select id="getStudNm" parameterType="String" resultType="String">
+		SELECT stud_nm FROM student where stud_cd = #{stud_cd}
+    </select>
+    
+    
+    <insert id="insertFileMaster" parameterType="FileVO">
+    <![CDATA[
+        INSERT INTO FILE_MASTER (FILE_ID,REG_DATE,DEL_YN) VALUES (#{file_id},now(),'N')
+    ]]>
+    </insert>
+    <insert id="insertFileDetail" parameterType="FileVO">
+    <![CDATA[
+        INSERT INTO FILE_DETAIL (FILE_ID,FILE_SN,FILE_PATH,FILE_NM,ORI_FILE_NM,FILE_EXT,FILE_SIZE)
+		VALUES (#{file_id},#{file_sn},#{file_path},#{file_nm},#{ori_file_nm},#{file_ext},#{file_size})
+    ]]>
+    </insert>
+    
+    <select id="selectFileInf" parameterType="FileVo" resultType="FileVo">
+		SELECT 
+				FILE_ID, FILE_SN, FILE_PATH, FILE_NM,
+				FILE_EXT, ORI_FILE_NM, FILE_SIZE
+			FROM
+				FILE_DETAIL
+			WHERE
+				FILE_ID = #{file_id}
+			AND 
+				FILE_SN = #{file_sn}
+    </select>
+    
+   	<select id="getMaxFileId" resultType="String">
+		select case when max(file_id) is null then 1 else max(file_id)+1 end from FILE_MASTER
+	</select>
+   	<select id="getMaxBbsId" resultType="String">
+		select case when max(bbs_id) is null then 1 else max(bbs_id)+1 end from bbs_info
+	</select>
+	
+	<select id="getHakwonCd" parameterType="StudentVo" resultType="String">
+		SELECT hakwon_cd 
+		FROM student 
+		where stud_id = #{stud_id}
+		and stud_nm = #{stud_nm}
+		and use_yn = 'Y'
+    </select>
+    
+    <select id="getMaxQnaCd" resultType="String">
+		select case when max(qna_cd) is null then 1 else max(qna_cd)+1 end from qna_info
+	</select>
+	
+    
+    <select id="getKwamokList" parameterType="KwamokVo" resultType="KwamokVo">
+		SELECT * FROM kwamok 
+		where use_yn = 'Y'
+		order by kwamok_cd
+		
+    </select>
+    
+	<select id="getStudKwamokList" parameterType="StudentKwamokVo" resultType="StudentKwamokVo">
+	    SELECT a.stud_cd 
+		,b.kwamok_cd
+		,b.kwamok_folder_cd
+		,b.kwamok_nm
+		FROM student_kwamok a, kwamok b 
+		where a.kwamok_cd = b.kwamok_cd
+		and b.use_yn = 'Y'
+		and a.stud_cd = #{stud_cd} 
+		order by a.kwamok_cd
+    </select>
+    
+	<select id="getTeacherHakwonList" parameterType="TeacherHakwonVo" resultType="TeacherHakwonVo">
+	    SELECT a.teacher_cd
+		,b.hakwon_cd
+		,b.hakwon_nm
+		 FROM teacher_hakwon a, hakwon b
+		 where a.hakwon_cd = b.hakwon_cd
+		 and teacher_cd = #{teacher_cd}
+		 and b.use_yn = 'Y' 
+		 order by a.hakwon_cd
+    </select>
+    
+    
+	<select id="getTeacherHakwonAllList" parameterType="TeacherHakwonVo" resultType="HakwonVo">
+		SELECT a.* FROM hakwon a, teacher_hakwon b
+		where a.hakwon_cd = b.hakwon_cd
+		and b.teacher_cd = #{teacher_cd}
+		and a.use_yn = 'Y' 
+		order by a.hakwon_nm
+    </select>
+    
+    <select id="getKwamokDetailPk" parameterType="String" resultType="KwamokVo">
+		SELECT * FROM kwamok 
+		where use_yn = 'Y'
+		and kwamok_cd = #{kwamok_cd}
+    </select>
+</mapper>
